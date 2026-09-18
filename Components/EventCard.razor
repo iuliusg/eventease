@@ -1,0 +1,23 @@
+@using EventEase.Services
+<article class="event-card">
+ <span class="eyebrow">UPCOMING EVENT</span><h2>@Event.Name</h2>
+ <p>@Event.Date.ToString("dddd, dd MMMM yyyy")</p><p>@Event.Location</p>
+ <div class="actions"><a class="button" href="events/@Event.Id">View event</a><button class="secondary" @onclick="Edit">Edit details</button></div>
+ @if(draft is not null) {
+ <EditForm Model="draft" OnValidSubmit="Save"><DataAnnotationsValidator/><ValidationSummary/>
+ <label for="name-@Event.Id">Event name</label><InputText id="@($"name-{Event.Id}")" @bind-Value="draft.Name"/>
+ <label for="date-@Event.Id">Date</label><InputDate id="@($"date-{Event.Id}")" @bind-Value="draft.Date"/>
+ <label for="place-@Event.Id">Location</label><InputText id="@($"place-{Event.Id}")" @bind-Value="draft.Location"/>
+ <div class="actions"><button type="submit">Save changes</button><button type="button" class="secondary" @onclick="() => draft=null">Cancel</button></div>
+ </EditForm> }
+</article>
+@code {
+ [Parameter,EditorRequired] public EventInfo Event {get;set;}=default!;
+ [Parameter] public EventCallback OnChanged {get;set;}
+ private EventInfo? draft;
+ private void Edit()=>draft=new(){Id=Event.Id,Name=Event.Name,Date=Event.Date,Location=Event.Location};
+ private async Task Save(){if(draft is null)return;
+ draft.Name=draft.Name.Trim();draft.Location=draft.Location.Trim();
+ if(!System.ComponentModel.DataAnnotations.Validator.TryValidateObject(draft,new(draft),null,true))return;
+ Event.Name=draft.Name;Event.Date=draft.Date;Event.Location=draft.Location;draft=null;await OnChanged.InvokeAsync();}
+}
