@@ -1,0 +1,7 @@
+@page "/events/{Id:int}"
+@using EventEase.Services
+@inject EventStore Store
+<PageTitle>Event details | EventEase</PageTitle>
+@if(item is null){<h1>Event not found</h1><p>This event does not exist.</p><a href="">Back to events</a>}
+else {<span class="eyebrow">YOUR NEXT EXPERIENCE</span><h1>@item.Name</h1><p>@item.Date.ToString("dddd, dd MMMM yyyy") · @item.Location</p><p>Join us for a day of connection, fresh ideas and shared experiences.</p><div class="actions"><a class="button" href="register/@Id">Reserve your place</a><a class="button secondary" href="attendance/@Id">Attendance tracker</a><a href="">All events</a></div>}
+@code { [Parameter] public int Id {get;set;} private EventInfo? item; protected override void OnParametersSet()=>item=Store.Find(Id); }

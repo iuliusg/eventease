@@ -1,0 +1,10 @@
+@page "/attendance/{Id:int}"
+@using EventEase.Services
+@inject EventStore Store
+<PageTitle>Attendance | EventEase</PageTitle>
+@if(item is null){<h1>Event not found</h1><a href="">Back to events</a>}
+else {<span class="eyebrow">BRING EVERYONE TOGETHER</span><h1>Attendance · @item.Name</h1><p role="status">@Guests.Count registered · @Guests.Count(a=>a.Attended) checked in</p>
+ @if(Guests.Count==0){<p>No registrations yet.</p>}
+ <div class="form-card">@foreach(var guest in Guests){<label class="attendee" @key="guest.Email"><input type="checkbox" @bind="guest.Attended"/> <span>@guest.Name<br/><small>@guest.Email</small></span><span>@(guest.Attended?"Checked in":"Awaiting arrival")</span></label>}</div>
+ <div class="actions"><a href="register/@Id">Register a guest</a><a href="events/@Id">Event details</a></div>}
+@code { [Parameter] public int Id {get;set;} private EventInfo? item; private List<Attendee> Guests=>Store.Attendees.Where(a=>a.EventId==Id).ToList(); protected override void OnParametersSet()=>item=Store.Find(Id); }

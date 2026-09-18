@@ -1,0 +1,24 @@
+@page "/"
+@using EventEase.Services
+@using EventEase.Components
+@inject EventStore Store
+<PageTitle>Discover events | EventEase</PageTitle>
+<section class="hero"><span class="eyebrow">GOOD PEOPLE. GREAT MOMENTS.</span><h1>Make room for<br/>something memorable.</h1><p>Discover your next gathering, reserve your place and stay connected.</p></section>
+<label for="search">Find an event</label><input id="search" type="search" placeholder="Search by name or location" @oninput="Search"/>
+<p>@filtered.Count event(s) found</p>
+<div class="event-grid">
+ @foreach(var item in filtered.Skip((page-1)*PageSize).Take(PageSize)) {<EventCard @key="item.Id" Event="item" OnChanged="Refresh"/>}
+</div>
+@if(filtered.Count==0){<p>No events match your search.</p>}
+@if(filtered.Count>PageSize){<div class="actions"><button disabled="@(page==1)" @onclick="()=>page--">Previous</button><span>Page @(page) of @TotalPages</span><button disabled="@(page==TotalPages)" @onclick="()=>page++">Next</button></div>}
+@code {
+ private const int PageSize=6;
+ private int page=1;
+ private string query="";
+ private List<EventInfo> filtered=[];
+ private int TotalPages=>Math.Max(1,(filtered.Count+PageSize-1)/PageSize);
+ protected override void OnInitialized()=>Refresh();
+ private void Search(ChangeEventArgs args){query=args.Value?.ToString()?.Trim()??"";Refresh();}
+ private void Refresh(){filtered=Store.Events.Where(e=>e.Name.Contains(query,StringComparison.OrdinalIgnoreCase)||e.Location.Contains(query,StringComparison.OrdinalIgnoreCase)).ToList();page=1;}
+}
+

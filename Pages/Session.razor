@@ -1,0 +1,8 @@
+@page "/session"
+@using EventEase.Services
+@inject EventStore Store
+<PageTitle>Your session | EventEase</PageTitle>
+<h1>Your session</h1><p>Your registration details stay available while you navigate within this app. Refreshing or closing the page resets this demonstration's data.</p>
+@if(string.IsNullOrEmpty(Store.Session.Email)){<p>No saved registration details.</p>}
+else {<div class="form-card"><h2>@Store.Session.Name</h2><p>@Store.Session.Email</p><button @onclick="Store.ClearSession">Clear saved details</button></div>}
+<a href="">Explore events</a>

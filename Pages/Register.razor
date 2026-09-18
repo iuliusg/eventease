@@ -1,0 +1,20 @@
+@page "/register/{Id:int}"
+@using EventEase.Services
+@inject EventStore Store
+<PageTitle>Registration | EventEase</PageTitle>
+@if(item is null){<h1>Event not found</h1><a href="">Back to events</a>}
+else {
+ <span class="eyebrow">SAVE YOUR SEAT</span><h1>Register for @item.Name</h1><p>@item.Date.ToString("dd MMMM yyyy") · @item.Location</p>
+ <EditForm Model="input" OnValidSubmit="Submit" class="form-card"><DataAnnotationsValidator/><ValidationSummary/>
+ <label for="full-name">Full name</label><input id="full-name" autocomplete="name" @bind="input.Name" @bind:event="oninput"/><ValidationMessage For="()=>input.Name"/>
+ <label for="email">Email address</label><input id="email" type="email" autocomplete="email" @bind="input.Email" @bind:event="oninput"/><ValidationMessage For="()=>input.Email"/>
+ <button type="submit">Confirm registration</button></EditForm>
+ <p role="status">@message</p><div class="actions"><a href="events/@Id">Event details</a><a href="attendance/@Id">View attendance</a></div>
+}
+@code {
+ [Parameter] public int Id {get;set;}
+ private EventInfo? item; private RegistrationInput input=new(); private string message="";
+ protected override void OnParametersSet(){item=Store.Find(Id);input=new(){Name=Store.Session.Name,Email=Store.Session.Email};message="";}
+ private void Submit()=>message=Store.Register(Id,input)?"You're registered! Your details are saved for this session.":"Please check your details. This email may already be registered for this event.";
+}
+
